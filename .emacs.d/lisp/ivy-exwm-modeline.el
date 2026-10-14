@@ -1,0 +1,235 @@
+;;; ivy-exwm-modeline.el --- EXWM-aware balanced modeline -*- lexical-binding: t; -*-
+
+;; Author: Ivy
+;; Version: 0.5
+;; Package-Requires: ((emacs "27.1") (nerd-icons "0.1.0"))
+;; Keywords: convenience, exwm, mode-line
+
+;;; Commentary:
+;; Clean EXWM modeline:
+;; - left: icon + state + buffer/file/EXWM title + time
+;; - right: input mode / major mode
+
+;;; Code:
+
+(require 'nerd-icons)
+
+;; ----------------------------
+;; EXWM helpers
+;; ----------------------------
+
+(defun ivy-exwm-modeline--exwm-p ()
+  "Return non-nil if current buffer is an EXWM buffer."
+  (bound-and-true-p exwm--id))
+
+(defun ivy-exwm-modeline--title ()
+  "Return EXWM window title."
+  (when (ivy-exwm-modeline--exwm-p)
+    (or exwm-title "EXWM")))
+
+(defun ivy-exwm-modeline--input ()
+  "Return EXWM input mode indicator."
+  (when (ivy-exwm-modeline--exwm-p)
+    (if (eq exwm--input-mode 'line-mode)
+        "LINE"
+      "CHAR")))
+
+;; ----------------------------
+;; Battery
+;; ----------------------------
+(defun ivy-exwm-get--battery-device ()
+  "Return the first battery device in sysfs."
+  (car
+   (directory-files
+    "/sys/class/power_supply/"
+    t
+    "\\`BAT[0-9]+\\'")))
+(defun ivy-exwm-get--battery ()
+  "Return battery percentage."
+  (let ((battery (ivy-exwm-get--battery-device)))
+    (when battery
+      (string-to-number
+       (string-trim
+        (with-temp-buffer
+          (insert-file-contents
+           (expand-file-name "capacity" battery))
+          (buffer-string)))))))
+
+(defun ivy-exwm-get--battery-status ()
+  "Return battery status."
+  (let ((battery (ivy-exwm-get--battery-device)))
+    (when battery
+      (string-trim
+       (with-temp-buffer
+         (insert-file-contents
+          (expand-file-name "status" battery))
+         (buffer-string))))))
+
+(defun ivy-exwm-modeline-get-battery ()
+  "Return battery percentage and Nerd Icon."
+  (let* ((percent (ivy-exwm-get--battery))
+         (status (ivy-exwm-get--battery-status))
+         (icon
+          (cond
+           ;; Charging
+           ((string= status "Charging")
+            (nerd-icons-mdicon "nf-md-battery_charging"))
+
+           ;; Battery level
+           ((>= percent 90)
+            (nerd-icons-mdicon "nf-md-battery"))
+
+           ((>= percent 70)
+            (nerd-icons-mdicon "nf-md-battery_80"))
+
+           ((>= percent 40)
+            (nerd-icons-mdicon "nf-md-battery_50"))
+
+           ((>= percent 20)
+            (nerd-icons-mdicon "nf-md-battery_20"))
+
+           ;; Critical
+           (t
+            (nerd-icons-mdicon "nf-md-battery_10")))))
+    (format "%s %d%%" icon percent)))
+;; ----------------------------
+;; Icon
+;; ----------------------------
+
+(defun ivy-exwm-modeline--icon ()
+  (nerd-icons-icon-for-mode major-mode
+                            :height 1.0
+                            :v-adjust -0.05))
+
+;; ----------------------------
+;; State (FIXED ORDER)
+;; ----------------------------
+
+(defun ivy-exwm-modeline--state ()
+  (cond
+   ;; Modified file buffer
+   ((and buffer-file-name (buffer-modified-p))
+    (nerd-icons-faicon "nf-fa-pencil"))
+
+   ;; EXWM window
+   ((ivy-exwm-modeline--exwm-p)
+    (nerd-icons-mdicon "nf-md-window_maximize"))
+
+   ;; Read-only
+   (buffer-read-only
+    (nerd-icons-mdicon "nf-md-lock"))
+
+
+   ;; Locked file
+   ((and buffer-file-name
+         (file-locked-p buffer-file-name))
+    (nerd-icons-mdicon "nf-md-lock"))
+
+
+   ;; Default
+   (t
+    (nerd-icons-faicon "nf-fa-check"))))
+
+;; ----------------------------
+;; Name + Time (TIME MOVED HERE)
+;; ----------------------------
+
+(defun ivy-exwm-modeline--name ()
+  (let* ((base-name
+          (cond
+           ((ivy-exwm-modeline--exwm-p)
+            (ivy-exwm-modeline--title))
+           (buffer-file-name
+            (file-name-nondirectory buffer-file-name))
+           (t
+            (buffer-name))))
+         (hour (string-to-number (format-time-string "%H")))
+         ;; Convert to 12-hour format
+         (hour12 (let ((h (% hour 12)))
+                   (if (= h 0) 12 h)))
+         (time-str (format "%d%s"
+                           hour12
+                           (format-time-string ":%M"))))
+    (propertize
+     (concat base-name " " time-str)
+     'face 'mode-line-buffer-id)))
+
+;; ----------------------------
+;; Audio / PipeWire
+;; ----------------------------
+
+(defun ivy-exwm-modeline-get-volume ()
+  "Return current PipeWire volume."
+  (let ((output
+         (string-trim
+          (shell-command-to-string
+           "wpctl get-volume @DEFAULT_AUDIO_SINK@ 2>/dev/null"))))
+    (if (string-match
+         "Volume: \\([0-9.]+\\)\\( \\[MUTED\\]\\)?"
+         output)
+        (let* ((volume
+                (round (* 100
+                          (string-to-number
+                           (match-string 1 output)))))
+               (muted (match-string 2 output))
+               (icon
+                (cond
+                 (muted
+                  (nerd-icons-mdicon "nf-md-volume_off"))
+                 ((< volume 33)
+                  (nerd-icons-mdicon "nf-md-volume_low"))
+                 ((< volume 66)
+                  (nerd-icons-mdicon "nf-md-volume_medium"))
+                 (t
+                  (nerd-icons-mdicon "nf-md-volume_high")))))
+          (format "%s %d%%" icon volume))
+      (nerd-icons-mdicon "nf-md-volume_off"))))
+
+
+;; ----------------------------
+;; Right side (FIXED mode-name eval)
+;; ----------------------------
+
+(defun ivy-exwm-modeline--right ()
+  (let* ((mode-str (format-mode-line mode-name))
+	 (battery-str (ivy-exwm-modeline-get-battery))
+         (rhs
+          (if (ivy-exwm-modeline--exwm-p)
+	      (format "%s | %s | %s "
+		      battery-str
+		      (ivy-exwm-modeline--input)
+		      mode-str)
+            (format "%s | %s " battery-str mode-str)))
+         (w (string-width rhs)))
+    (list
+     (propertize " "
+                 'display `(space :align-to (- right ,w)))
+     rhs)))
+
+;; ----------------------------
+;; Modeline definition
+;; ----------------------------
+
+(defvar ivy-exwm-modeline-format
+  '(" "
+    (:eval (ivy-exwm-modeline--icon))
+    " "
+    (:eval (ivy-exwm-modeline--state))
+    " "
+    (:eval (ivy-exwm-modeline--name))
+    (:eval (ivy-exwm-modeline--right))))
+
+;;;###autoload
+(define-minor-mode ivy-exwm-modeline-mode
+  "Enable Ivy's EXWM-aware modeline."
+  :global t
+  (if ivy-exwm-modeline-mode
+      (setq-default mode-line-format ivy-exwm-modeline-format)
+    (setq-default mode-line-format (default-value 'mode-line-format))))
+
+;; Force minute updates (safe + cheap)
+(run-at-time t 60 (lambda () (force-mode-line-update t)))
+
+(provide 'ivy-exwm-modeline)
+
+;;; ivy-exwm-modeline.el ends here

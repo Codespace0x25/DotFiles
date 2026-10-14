@@ -1,0 +1,9 @@
+;; -*- lexical-binding: nil; -*-
+
+(require 'vterm)
+
+(defun olivia/new-vterm ()
+  (interactive)
+  (let* ((vterm-name (generate-new-buffer-name "vterm")))
+    (vterm vterm-name)))
+

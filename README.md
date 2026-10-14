@@ -12,4 +12,3 @@ after a while i of using dunst as my notifcasion system and then no notifcasion 
 > requred packages
 >> libvterm
 >> x utilitys stuch as start x xdotools and others 
-# DotFiles
