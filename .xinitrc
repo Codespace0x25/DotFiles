@@ -21,6 +21,4 @@ export VISUAL="emacsclient -c -a ''"
 export XCURSOR_THEME=macOS
 export XCURSOR_SIZE=24
 
-feh --bg-fill ~/Pictures/IMG_0058.png & 
-picom  & 
 exec emacs --fullscreen
