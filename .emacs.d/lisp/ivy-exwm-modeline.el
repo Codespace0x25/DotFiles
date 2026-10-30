@@ -13,6 +13,7 @@
 ;;; Code:
 
 (require 'nerd-icons)
+(require 'keycast)
 
 ;; ----------------------------
 ;; EXWM helpers
@@ -33,6 +34,21 @@
     (if (eq exwm--input-mode 'line-mode)
         "LINE"
       "CHAR")))
+
+
+;; ----------------------------
+;; Keyboard Layout
+;; ----------------------------
+
+(defun ivy-exwm-modeline-get-keyboard-layout ()
+  "Return the current XKB keyboard layout."
+  (let ((output
+         (string-trim
+          (shell-command-to-string
+           "setxkbmap -query 2>/dev/null"))))
+    (if (string-match "^layout:[ \t]*\\(.+\\)$" output)
+        (string-trim (match-string 1 output))
+      "us")))
 
 ;; ----------------------------
 ;; Battery

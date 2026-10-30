@@ -22,3 +22,4 @@ export XCURSOR_THEME=macOS
 export XCURSOR_SIZE=24
 
 exec emacs --fullscreen
+# exec jwm

@@ -150,7 +150,6 @@
 
 (add-hook 'c-mode-hook #'lsp-deferred)
 (add-hook 'c++-mode-hook #'lsp-deferred)
-(add-hook 'asm-mode-hook #'lsp-deferred)
 (add-hook 'lsp-mode-hook #'lsp-ui-mode)
 
 (setq lsp-ui-sideline-enable t
@@ -228,12 +227,11 @@
 ;; ----------------------------
 ;; EXWM key-binds
 ;; ----------------------------
-
 (exwm-input-set-key (kbd "M-x") #'ivy/M-x)
 (exwm-input-set-key (kbd "s-M-<return>") #'eshell)
 (exwm-input-set-key (kbd "s-<return>") #'ivy/new-vterm)
 (exwm-input-set-key (kbd "s-b") #'ivy-switch-buffer)
-(exwm-input-set-key (kbd "s-p") #'kill-emacs)
+(exwm-input-set-key (kbd "s-p") #'(lambda () (interactive) (message "no you don't")))
 (exwm-input-set-key (kbd "s-c") #'exwm-input-release-keyboard)
 
 ;; window fockase change
@@ -429,10 +427,10 @@
  '(package-selected-packages
    '(2048-game basic-mode beacon buffer-move burly company company-box
 	       company-glsl crystal-mode cuda-mode
-	       dashboard-hackernews docker-cli ednc evil exwm
+	       dashboard-hackernews docker-cli ednc enotify evil exwm
 	       exwm-modeline firefox-javascript-repl flycheck
 	       flycheck-ocaml gradle-mode hackernews hackernews-modern
-	       helm ivy ivy-todo lsp-mode lsp-python-ms lsp-ui
+	       helm ivy ivy-todo keycast lsp-mode lsp-python-ms lsp-ui
 	       naga-theme nasm-mode nerd-icons nerd-icons-dired
 	       nix-ts-mode objed ocaml-ts-mode on-screen
 	       pdf-view-restore pipewire plan9-theme projectile python
