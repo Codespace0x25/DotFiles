@@ -16,8 +16,8 @@ export GTK_ICON_THEME="Adwaita"
 export GDK_SCALE=1
 export GDK_DPI_SCALE=1
 export NIXPKGS_ALLOW_UNFREE=1
-export EDITOR="emacsclient -c -a ''"
-export VISUAL="emacsclient -c -a ''"
+export EDITOR="emacsclient -r''"
+export VISUAL="emacsclient -r''"
 export XCURSOR_THEME=macOS
 export XCURSOR_SIZE=24
 
