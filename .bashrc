@@ -4,6 +4,9 @@ export PAGER="emacs-pager"
 if command -v nix >/dev/null 2>&1; then
 export PATH="${PATH}:${HOME}/scripts/nixos"
 fi
+if command -v pacman >/dev/null 2>&1; then
+export PATH="${PATH}:${HOME}/scripts/archlinux"
+fi
 
 cd() {
     command cd "$@" || return

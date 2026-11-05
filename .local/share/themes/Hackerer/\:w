@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=X-GNOME-Metatheme
+Name=whatthefuck
+Comment=no comment was here
+Encoding=UTF-8
+
+[X-GNOME-Metatheme]
+Name=Hackerer
+GtkTheme=Hackerer
+IconTheme=Hackerer
+MetacityTheme=Hackerer

@@ -61,6 +61,7 @@
 ;; ----------------------------
 ;; UI sanity
 ;; ----------------------------
+(setq exwm-workspace-minibuffer-position 'top)
 (set-face-attribute 'default nil
   :family "OpenDyslexic3"
   :height 100) ;; 140 = 14pt
@@ -433,12 +434,12 @@
 	       flycheck-ocaml gradle-mode hackernews hackernews-modern
 	       helm ivy ivy-todo keycast lsp-mode lsp-python-ms lsp-ui
 	       naga-theme nasm-mode nerd-icons nerd-icons-dired
-	       nix-ts-mode objed ocaml-ts-mode on-screen pager
-	       pdf-view-restore pipewire plan9-theme projectile python
-	       smartparens system-packages system-specific-settings
-	       systemd theme-buffet tramp-theme tron-legacy-theme
-	       undo-tree vterm vterm-toggle web-server year-1984-theme
-	       zk-desktop)))
+	       nix-mode nix-ts-mode objed ocaml-ts-mode on-screen
+	       pager pdf-view-restore pipewire plan9-theme projectile
+	       python smartparens system-packages
+	       system-specific-settings systemd theme-buffet
+	       tramp-theme tron-legacy-theme undo-tree vterm
+	       vterm-toggle web-server year-1984-theme zk-desktop)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
