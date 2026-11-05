@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+set -e
+
+open_file() {
+    local escaped
+    printf -v escaped '%s' "$1"
+    escaped=${escaped//\\/\\\\}
+    escaped=${escaped//\"/\\\"}
+
+    emacsclient -n -r --eval \
+        "(ivy/pager-file \"$escaped\")"
+}
+
+if [[ $# -gt 0 ]]; then
+    for file in "$@"; do
+        open_file "$file"
+    done
+
+elif [[ ! -t 0 ]]; then
+    tmpfile=$(mktemp)
+    trap 'rm -f "$tmpfile"' EXIT
+
+    cat > "$tmpfile"
+
+    open_file "$tmpfile" &
+
+else
+    printf "Usage: %s [FILE...]\n" "$0" >&2
+    exit 1
+fi

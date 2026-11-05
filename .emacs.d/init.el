@@ -22,6 +22,7 @@
 (require 'ivy-vterm)
 (require 'ednc-popup)
 (require 'ivy-exwm-modeline)
+(require 'ivy-pager)
 
 ;; ----------------------------
 ;; Core requires
@@ -432,7 +433,7 @@
 	       flycheck-ocaml gradle-mode hackernews hackernews-modern
 	       helm ivy ivy-todo keycast lsp-mode lsp-python-ms lsp-ui
 	       naga-theme nasm-mode nerd-icons nerd-icons-dired
-	       nix-ts-mode objed ocaml-ts-mode on-screen
+	       nix-ts-mode objed ocaml-ts-mode on-screen pager
 	       pdf-view-restore pipewire plan9-theme projectile python
 	       smartparens system-packages system-specific-settings
 	       systemd theme-buffet tramp-theme tron-legacy-theme

@@ -13,7 +13,7 @@ xset r rate 200 60
 export QT_QPA_PLATFORMTHEME="qt5ct"
 export GTK_THEME="Hackerer"
 export GTK_ICON_THEME="Adwaita"
-export GDK_SCALE=1
+export GDK_SCALE=0.5
 export GDK_DPI_SCALE=1
 export NIXPKGS_ALLOW_UNFREE=1
 export EDITOR="emacsclient -r''"

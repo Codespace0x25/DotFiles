@@ -1,0 +1,15 @@
+#!/usr/bin/env sh
+
+if command -v nix >/dev/null 2>&1; then
+    pkg="$1"
+    shift
+
+    if [ $# -eq 0 ]; then
+        set -- "$pkg"
+    fi
+
+    exec nix-shell -p "$pkg" --run "$*"
+else
+    printf "this is not a nix system\n" >&2
+fi
+
